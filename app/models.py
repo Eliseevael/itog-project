@@ -33,7 +33,8 @@ class Photo(db.Model):
     filename = db.Column(db.String(255), nullable=False)
     mime_type = db.Column(db.String(50), nullable=False)
     md5_hash = db.Column(db.String(32), nullable=False)
-    equipment_id = db.Column(db.Integer, db.ForeignKey('equipment.id'), nullable=False)
+    equipment_id = db.Column(db.Integer, db.ForeignKey('equipment.id'), nullable=True)
+
 
 
 class Maintenance(db.Model):
