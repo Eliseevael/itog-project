@@ -64,8 +64,14 @@
 
                 {% if current_user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('equipment.index') }}">Оборудование</a>
+                        <a class="nav-link" href="{{ url_for('equipment.equipment_all_info') }}">Оборудование</a>
                     </li>
+                    {% if current_user.is_authenticated and current_user.role.name in ['admin', 'tech'] %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('equipment.maintenance_history') }}">Обслуживание</a>
+                        </li>
+                    {% endif %}
+
 
                     {% if current_user.role.name in ['admin', 'tech'] %}
                         <li class="nav-item">

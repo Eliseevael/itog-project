@@ -328,3 +328,19 @@ def generate_writeoff_pdf(id):
     response.headers['Content-Type'] = 'application/pdf'
     response.headers['Content-Disposition'] = f'attachment; filename=writeoff_{record.id}.pdf'
     return response
+
+@equipment_bp.route('/all')
+@login_required
+def equipment_all_info():
+    equipment_list = Equipment.query.all()
+    return render_template('equipment_list_info.html', equipment_list=equipment_list)
+
+@equipment_bp.route('/maintenance_history')
+@login_required
+def maintenance_history():
+    if current_user.role.name not in ['admin', 'tech']:
+        flash('Недостаточно прав для просмотра.', 'danger')
+        return redirect(url_for('index'))
+
+    records = Maintenance.query.order_by(Maintenance.date.desc()).all()
+    return render_template('maintenance_history.html', records=records)
