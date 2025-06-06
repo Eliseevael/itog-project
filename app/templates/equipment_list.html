@@ -3,13 +3,43 @@
 {% block title %}Список оборудования{% endblock %}
 
 {% block content %}
-
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Список оборудования</h2>
-        <a href="{{ url_for('equipment.add_equipment') }}" class="btn btn-secondary btn-rounded">+ Добавить</a>
-
+        {% if current_user.role.name != 'user' %}
+            <a href="{{ url_for('equipment.add_equipment') }}" class="btn btn-secondary btn-rounded">+ Добавить</a>
+        {% endif %}
     </div>
+
+    <form method="get" class="row g-2 mb-4">
+        <div class="col-md-3">
+            <select class="form-select" name="category_id">
+                <option value="">Все категории</option>
+                {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if request.args.get('category_id', type=int) == cat.id %}selected{% endif %}>
+                        {{ cat.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select class="form-select" name="status">
+                <option value="">Все статусы</option>
+                <option value="in_use" {% if request.args.get('status') == 'in_use' %}selected{% endif %}>В эксплуатации</option>
+                <option value="under_repair" {% if request.args.get('status') == 'under_repair' %}selected{% endif %}>На ремонте</option>
+                <option value="written_off" {% if request.args.get('status') == 'written_off' %}selected{% endif %}>Списано</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <input type="date" class="form-control" name="date_from" value="{{ request.args.get('date_from', '') }}">
+        </div>
+        <div class="col-md-2">
+            <input type="date" class="form-control" name="date_to" value="{{ request.args.get('date_to', '') }}">
+        </div>
+        <div class="col-md-2 text-end">
+            <button type="submit" class="btn btn-light btn-rounded w-100">Применить</button>
+        </div>
+    </form>
 
     <table class="table table-hover table-bordered rounded shadow-sm overflow-hidden">
         <thead>
@@ -35,8 +65,37 @@
                     {% endif %}
                 </td>
                 <td>
-                    <a href="{{ url_for('equipment.view_equipment', id=item.id) }}" class="btn btn-outline-light btn-sm btn-rounded">Просмотр</a>
-                    <a href="#" class="btn btn-outline-danger btn-sm btn-rounded">Удалить</a>
+                    <a href="{{ url_for('equipment.view_equipment', id=item.id) }}" class="btn btn-secondary btn-sm btn-rounded">Просмотр</a>
+                    {% if current_user.role.name == 'admin' %}
+                        <a href="{{ url_for('equipment.edit_equipment', id=item.id) }}" class="btn btn-outline-warning btn-sm btn-rounded">Редактировать</a>
+                    {% endif %}
+                    {% if current_user.role.name == 'admin' %}
+                    <!-- Кнопка удаления -->
+                    <button type="button" class="btn btn-outline-danger btn-sm btn-rounded" data-bs-toggle="modal" data-bs-target="#deleteModal{{ item.id }}">
+                        Удалить
+                    </button>
+
+                    <!-- Модальное окно подтверждения -->
+                    <div class="modal fade" id="deleteModal{{ item.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ item.id }}" aria-hidden="true">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="deleteModalLabel{{ item.id }}">Удаление оборудования</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                          </div>
+                          <div class="modal-body">
+                            Вы уверены, что хотите удалить <strong>{{ item.name }}</strong>?
+                          </div>
+                          <div class="modal-footer">
+                            <form method="POST" action="{{ url_for('equipment.delete_equipment', id=item.id) }}">
+                                <button type="submit" class="btn btn-danger">Да</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Нет</button>
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    {% endif %}
                 </td>
             </tr>
             {% else %}
@@ -46,6 +105,24 @@
             {% endfor %}
         </tbody>
     </table>
+
+    {% if equipment_list.pages > 1 %}
+    <nav>
+        <ul class="pagination justify-content-center">
+            {% for p in equipment_list.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+            {% if p %}
+                <li class="page-item {% if p == equipment_list.page %}active{% endif %}">
+                    <a class="page-link" href="{{ url_for('equipment.index', page=p, **request.args) }}">{{ p }}</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">…</span></li>
+            {% endif %}
+            {% endfor %}
+        </ul>
+    </nav>
+    {% endif %}
 </div>
 
+<!-- Bootstrap JS для модалок -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 {% endblock %}

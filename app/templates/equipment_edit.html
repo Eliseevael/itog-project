@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Редактировать оборудование{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 600px;">
+    <h2 class="mb-4">Редактировать оборудование</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} rounded-pill text-center">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <form method="POST" enctype="multipart/form-data">
+        <label class="form-label">Название:</label>
+        <input type="text" name="name" class="form-control" required value="{{ equipment.name }}">
+
+        <label class="form-label">Инвентарный номер:</label>
+        <input type="text" name="inventory_number" class="form-control" required value="{{ equipment.inventory_number }}">
+
+        <label class="form-label">Категория:</label>
+        <select name="category_id" class="form-select" required>
+            {% for cat in categories %}
+                <option value="{{ cat.id }}" {% if cat.id == equipment.category_id %}selected{% endif %}>{{ cat.name }}</option>
+            {% endfor %}
+        </select>
+
+        <label class="form-label">Дата покупки:</label>
+        <input type="date" name="purchase_date" class="form-control" required value="{{ equipment.purchase_date.isoformat() }}">
+
+        <label class="form-label">Стоимость:</label>
+        <input type="number" name="cost" step="0.01" class="form-control" required value="{{ equipment.cost }}">
+
+        <label class="form-label">Статус:</label>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="status" value="in_use" {% if equipment.status == 'in_use' %}checked{% endif %}>
+            <label class="form-check-label">В эксплуатации</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="status" value="under_repair" {% if equipment.status == 'under_repair' %}checked{% endif %}>
+            <label class="form-check-label">На ремонте</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="status" value="written_off" {% if equipment.status == 'written_off' %}checked{% endif %}>
+            <label class="form-check-label">Списано</label>
+        </div>
+
+        <label class="form-label">Примечание:</label>
+        <textarea name="note" class="form-control" rows="3">{{ equipment.note }}</textarea>
+
+        <label class="form-label">Новое фото (необязательно):</label>
+        <input type="file" name="photo" class="form-control">
+
+        {% if equipment.photo %}
+            <p class="text-muted mt-2">Текущее фото: {{ equipment.photo.filename }}</p>
+        {% endif %}
+
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-light btn-rounded px-4">Сохранить изменения</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

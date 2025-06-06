@@ -11,6 +11,16 @@ class Category(db.Model):
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text)
 
+class WriteOff(db.Model):
+    __tablename__ = 'write_off'
+    id = db.Column(db.Integer, primary_key=True)
+    equipment_id = db.Column(db.Integer, db.ForeignKey('equipment.id', ondelete='CASCADE'), nullable=False)
+    reason = db.Column(db.Text, nullable=False)
+    pdf_filename = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    equipment = db.relationship('Equipment', backref=db.backref('writeoffs', cascade='all, delete'))
+
 
 class Equipment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -24,7 +34,7 @@ class Equipment(db.Model):
 
     category = db.relationship('Category', backref='equipments')
     photo = db.relationship('Photo', uselist=False, backref='equipment')
-    maintenance_records = db.relationship('Maintenance', backref='equipment', cascade="all, delete")
+    #  Удалено: maintenance_records здесь — теперь создаётся через backref в Maintenance
     persons = db.relationship('Person', secondary='equipment_person', backref='equipments')
 
 
@@ -36,13 +46,25 @@ class Photo(db.Model):
     equipment_id = db.Column(db.Integer, db.ForeignKey('equipment.id'), nullable=True)
 
 
-
 class Maintenance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    equipment_id = db.Column(db.Integer, db.ForeignKey('equipment.id'), nullable=False)
-    date = db.Column(db.Date, default=datetime.utcnow)
+    equipment_id = db.Column(db.Integer, db.ForeignKey('equipment.id', ondelete="CASCADE"), nullable=False)
+    date = db.Column(db.Date, nullable=False)
     type = db.Column(db.String(100), nullable=False)
     comment = db.Column(db.Text)
+
+    # Только здесь описана связь с Equipment, создаёт backref автоматически
+    equipment = db.relationship(
+        'Equipment',
+        backref=db.backref('maintenance_records', cascade="all, delete"),
+        lazy=True
+    )
+    equipment_id = db.Column(
+        db.Integer,
+        db.ForeignKey('equipment.id', name='fk_maintenance_equipment_id', ondelete="CASCADE"),
+        nullable=False
+    )
+
 
 
 class Person(db.Model):

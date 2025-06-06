@@ -1,10 +1,31 @@
 {% extends "base.html" %}
 
-{% block title %}{{ equipment.name }}{% endblock %}
+{% block title %}Информация{% endblock %}
 
 {% block content %}
-
 <div class="container">
+    <style>
+        .photo {
+            max-width: 250px;
+            height: auto;
+            border-radius: 16px;
+            border: 1px solid #444;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+        }
+        .form-control, .form-select, textarea {
+            background-color: #2a2a2a;
+            color: white;
+            border-radius: 50px;
+            border: 1px solid #555;
+        }
+        .form-control:focus {
+            background-color: #2a2a2a;
+            color: white;
+            border-color: #888;
+            box-shadow: none;
+        }
+    </style>
+
     <h2>{{ equipment.name }}</h2>
 
     {% if photo_path %}
@@ -48,6 +69,30 @@
     {% else %}
         <p class="text-muted">Пока нет записей об обслуживании.</p>
     {% endif %}
-</div>
 
+    {% if current_user.role.name in ['admin', 'tech'] %}
+        <hr>
+        <h5 class="mt-4">Добавить обслуживание</h5>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+
+            <div class="mb-3">
+                {{ form.date.label(class="form-label") }}
+                {{ form.date(class="form-control") }}
+            </div>
+
+            <div class="mb-3">
+                {{ form.type.label(class="form-label") }}
+                {{ form.type(class="form-control") }}
+            </div>
+
+            <div class="mb-3">
+                {{ form.comment.label(class="form-label") }}
+                {{ form.comment(class="form-control", rows=3) }}
+            </div>
+
+            <button type="submit" class="btn btn-light btn-rounded px-4">{{ form.submit.label.text }}</button>
+        </form>
+    {% endif %}
+</div>
 {% endblock %}
