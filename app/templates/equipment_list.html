@@ -37,7 +37,8 @@
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Список оборудования</h2>
-        <a href="#" class="btn btn-secondary btn-rounded">+ Добавить</a>
+        <a href="{{ url_for('equipment.add_equipment') }}" class="btn btn-secondary btn-rounded">+ Добавить</a>
+
     </div>
 
     <table class="table table-hover table-bordered rounded shadow-sm overflow-hidden">
@@ -51,17 +52,28 @@
             </tr>
         </thead>
         <tbody>
-            <!-- Пока заглушка -->
+            {% for item in equipment_list %}
             <tr>
-                <td>Принтер Canon</td>
-                <td>INV-001</td>
-                <td>Принтер</td>
-                <td>В эксплуатации</td>
+                <td>{{ item.name }}</td>
+                <td>{{ item.inventory_number }}</td>
+                <td>{{ item.category.name if item.category else '—' }}</td>
+                <td>
+                    {% if item.status == 'in_use' %} В эксплуатации
+                    {% elif item.status == 'under_repair' %} На ремонте
+                    {% elif item.status == 'written_off' %} Списано
+                    {% else %} Неизвестно
+                    {% endif %}
+                </td>
                 <td>
                     <a href="#" class="btn btn-outline-light btn-sm btn-rounded">Редактировать</a>
                     <a href="#" class="btn btn-outline-danger btn-sm btn-rounded">Удалить</a>
                 </td>
             </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="text-center text-muted">Нет записей</td>
+            </tr>
+            {% endfor %}
         </tbody>
     </table>
 </div>
