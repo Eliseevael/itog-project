@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from config import Config
+from flask import redirect, url_for
 import os
 
 db = SQLAlchemy()
@@ -30,6 +31,6 @@ def create_app():
 
     @app.route('/')
     def index():
-        return 'Приложение запущено!'
+        return redirect(url_for('equipment.index'))
 
     return app
