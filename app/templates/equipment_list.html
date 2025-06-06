@@ -65,7 +65,7 @@
                     {% endif %}
                 </td>
                 <td>
-                    <a href="#" class="btn btn-outline-light btn-sm btn-rounded">Редактировать</a>
+                    <a href="{{ url_for('equipment.view_equipment', id=item.id) }}" class="btn btn-outline-light btn-sm btn-rounded">Просмотр</a>
                     <a href="#" class="btn btn-outline-danger btn-sm btn-rounded">Удалить</a>
                 </td>
             </tr>
